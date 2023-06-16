@@ -1,5 +1,6 @@
 package com.notbooking.userms.model;
 
+import com.notbooking.userms.dto.NewUserDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,5 +15,9 @@ public class Host extends User {
 
     public Host() {
         super();
+    }
+
+    public Host(NewUserDTO newUserDTO){
+        super(newUserDTO);
     }
 }

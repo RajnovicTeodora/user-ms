@@ -81,7 +81,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .antMatchers("/api/user/login").permitAll()
                 .antMatchers("/api/user/logout").permitAll()
-                .antMatchers("/api/user/resetPassword/**").permitAll()
+                .antMatchers("/api/user/register").permitAll()
                 // za svaki drugi zahtev korisnik mora biti autentifikovan
                 .anyRequest().authenticated().and()
 
@@ -98,7 +98,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // TokenAuthenticationFilter ce ignorisati sve ispod navedene putanje
         web.ignoring().antMatchers(HttpMethod.POST, "/api/user/login");
         web.ignoring().antMatchers(HttpMethod.GET, "/",
-                "/api/user/logout", "/api/user/resetPassword/**",
+                "/api/user/logout", "/api/user/register",
                 "/webjars/**", "/*.html", "/favicon.ico", "/**/*.html",
                 "/**/*.css", "/**/*.js");
     }
