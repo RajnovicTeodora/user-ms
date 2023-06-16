@@ -1,9 +1,12 @@
 package com.notbooking.userms.controller;
 
 import com.notbooking.userms.dto.LoginDTO;
+import com.notbooking.userms.dto.NewUserDTO;
 import com.notbooking.userms.dto.TokenDTO;
 import com.notbooking.userms.exception.BadRequestException;
+import com.notbooking.userms.exception.EmailExistsException;
 import com.notbooking.userms.exception.NotFoundException;
+import com.notbooking.userms.exception.UsernameExistsException;
 import com.notbooking.userms.security.TokenUtils;
 import com.notbooking.userms.service.UserDetailsService;
 import com.notbooking.userms.service.UserService;
@@ -96,6 +99,18 @@ public class UserController {
             return new ResponseEntity<>("You successfully logged out!", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("User is not authenticated!", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping(path = "/register", consumes = "application/json", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> addUser(@RequestBody NewUserDTO newUserDTO){
+        try {
+            userService.addUser(newUserDTO);
+            return new ResponseEntity<>("ok", HttpStatus.OK);
+        }catch (EmailExistsException e){
+            return new ResponseEntity<>("Email already exists!", HttpStatus.FORBIDDEN);
+        }catch (UsernameExistsException e){
+            return new ResponseEntity<>("Username already exists!", HttpStatus.FORBIDDEN);
         }
     }
 }

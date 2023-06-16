@@ -2,6 +2,7 @@ package com.notbooking.userms.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.notbooking.userms.dto.NewUserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -60,6 +61,16 @@ public abstract class User implements UserDetails{
     @ManyToOne
     @JoinColumn(name = "role_id")
     private UserRole role;
+
+    public User(NewUserDTO newUserDTO){
+        this.name = newUserDTO.getName();
+        this.surname = newUserDTO.getSurname();
+        this.username = newUserDTO.getUsername();
+        this.email = newUserDTO.getEmail();
+        this.isDeleted = false;
+        this.notificationsActive = true;
+        this.address = new Address(newUserDTO.getCountry(), newUserDTO.getCity(), newUserDTO.getStreet(), newUserDTO.getStreetNum());
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -29,6 +29,10 @@ public class Address {
     @Column(name = "streetNum", nullable = false)
     private int streetNum;
 
-    @Column(name = "postCode", nullable = false)
-    private String postCode;
+    public Address(String country, String city, String street, int streetNum){
+        this.country = country;
+        this.city = city;
+        this.street = street;
+        this.streetNum = streetNum;
+    }
 }
