@@ -2,9 +2,11 @@ package com.notbooking.userms.service;
 
 import com.notbooking.userms.dto.NewUserDTO;
 import com.notbooking.userms.exception.EmailExistsException;
+import com.notbooking.userms.exception.NotFoundException;
 import com.notbooking.userms.exception.UsernameExistsException;
 import com.notbooking.userms.model.Guest;
 import com.notbooking.userms.model.Host;
+import com.notbooking.userms.model.User;
 import com.notbooking.userms.model.UserRole;
 import com.notbooking.userms.repository.AddressRepository;
 import com.notbooking.userms.repository.UserRepository;
@@ -58,5 +60,15 @@ public class UserService {
             addressRepository.saveAndFlush(newGuest.getAddress());
             userRepository.saveAndFlush(newGuest);
         }
+    }
+
+    public String changeNotification(String email) {
+        Optional<User> user = userRepository.findByEmailAndNotDeleted(email);
+        if (!user.isPresent()) {
+            throw new NotFoundException("User with email " + email + " not found!");
+        }
+        user.get().setNotificationsActive(!user.get().isNotificationsActive());
+        userRepository.saveAndFlush(user.get());
+        return "Successfully changed notification setting!";
     }
 }

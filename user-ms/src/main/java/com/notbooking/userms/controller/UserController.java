@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -111,6 +112,16 @@ public class UserController {
             return new ResponseEntity<>("Email already exists!", HttpStatus.FORBIDDEN);
         }catch (UsernameExistsException e){
             return new ResponseEntity<>("Username already exists!", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('HOST', 'GUEST')")
+    @GetMapping(value = "/changeNotification/{email}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> changeNotification(@PathVariable String email) {
+        try {
+            return new ResponseEntity<>(userService.changeNotification(email), HttpStatus.OK);
+        }catch (NotFoundException e){
+            return new ResponseEntity<>("User with email "+ email + " not found!", HttpStatus.NOT_FOUND);
         }
     }
 }
