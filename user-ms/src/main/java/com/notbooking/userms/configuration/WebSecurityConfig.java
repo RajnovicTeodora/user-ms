@@ -82,6 +82,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/login").permitAll()
                 .antMatchers("/api/user/logout").permitAll()
                 .antMatchers("/api/user/register").permitAll()
+                .antMatchers("/api/rating/getAvgAccommodationScore/*").permitAll()
+                .antMatchers("/api/rating/getAvgHostScore/*").permitAll()
+                .antMatchers("/api/rating/getAllAccommodationScores/*").permitAll()
+                .antMatchers("/api/rating/getAllHostScores/*").permitAll()
                 // za svaki drugi zahtev korisnik mora biti autentifikovan
                 .anyRequest().authenticated().and()
 
@@ -99,6 +103,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers(HttpMethod.POST, "/api/user/login");
         web.ignoring().antMatchers(HttpMethod.GET, "/",
                 "/api/user/logout", "/api/user/register",
+                "/api/rating/getAvgAccommodationScore/*", "/api/rating/getAvgHostScore/*",
+                "/api/rating/getAllAccommodationScores/*", "/api/rating/getAllHostScores/*",
                 "/webjars/**", "/*.html", "/favicon.ico", "/**/*.html",
                 "/**/*.css", "/**/*.js");
     }

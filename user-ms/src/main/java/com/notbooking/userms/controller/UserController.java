@@ -1,5 +1,6 @@
 package com.notbooking.userms.controller;
 
+import com.notbooking.userms.dto.ChangePassDTO;
 import com.notbooking.userms.dto.LoginDTO;
 import com.notbooking.userms.dto.NewUserDTO;
 import com.notbooking.userms.dto.TokenDTO;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -58,7 +60,6 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.getFieldError().getDefaultMessage(), HttpStatus.BAD_REQUEST);
         }
-
         try {
             TokenDTO token = new TokenDTO();
             UserDetails userDetails = this.userDetailsService.loadUserByEmail(login.getEmail());
@@ -113,4 +114,61 @@ public class UserController {
             return new ResponseEntity<>("Username already exists!", HttpStatus.FORBIDDEN);
         }
     }
+
+    @PreAuthorize("hasAnyRole('HOST', 'GUEST')")
+    @GetMapping(value = "/changeNotification/{email}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> changeNotification(@PathVariable String email) {
+        try {
+            return new ResponseEntity<>(userService.changeNotification(email), HttpStatus.OK);
+        }catch (NotFoundException e){
+            return new ResponseEntity<>("User with email "+ email + " not found!", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('HOST', 'GUEST')")
+    @GetMapping(value = "/deleteAccount/{email}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> deleteAccount(@PathVariable String email) {
+        try {
+            return new ResponseEntity<>(userService.deleteAccount(email), HttpStatus.OK);
+        }catch (NotFoundException e){
+            return new ResponseEntity<>("User with email "+ email + " not found!", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('HOST', 'GUEST')")
+    @GetMapping(value = "/getUserInfo/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserInfo(@PathVariable String email) {
+        try {
+            return new ResponseEntity<>(userService.getUserInfo(email), HttpStatus.OK);
+        }catch (NotFoundException e){
+            return new ResponseEntity<>("User with email "+ email + " not found!", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('HOST', 'GUEST')")
+    @PostMapping(path = "/editUser/{email}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> editUser(@RequestBody NewUserDTO newUserDTO, @PathVariable String email){
+        try {
+            return new ResponseEntity<>(userService.editUser(newUserDTO, email), HttpStatus.OK);
+        }catch (EmailExistsException e){
+            return new ResponseEntity<>("Email already exists!", HttpStatus.FORBIDDEN);
+        }catch (NotFoundException e){
+            return new ResponseEntity<>("User not found!", HttpStatus.NOT_FOUND);
+        }catch (UsernameExistsException e){
+            return new ResponseEntity<>("Username already exists!", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('HOST', 'GUEST')")
+    @PostMapping(path = "/changePassword", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> changePassword(@RequestBody ChangePassDTO changePassDTO){
+        try {
+            return new ResponseEntity<>(userService.changePassword(changePassDTO), HttpStatus.OK);
+        }catch (NotFoundException e){
+            return new ResponseEntity<>("User with email "+ changePassDTO.getEmail() + " not found!", HttpStatus.NOT_FOUND);
+        }catch (BadRequestException e) {
+            return new ResponseEntity<>("Incorrect password.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
