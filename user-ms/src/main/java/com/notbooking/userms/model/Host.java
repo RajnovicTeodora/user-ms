@@ -4,14 +4,17 @@ import com.notbooking.userms.dto.NewUserDTO;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "host")
 @Getter
 @Setter
 public class Host extends User {
+
+    @OneToMany(mappedBy = "host")
+    private List<Rating> ratings;
 
     public Host() {
         super();

@@ -11,8 +11,6 @@ import com.notbooking.userms.repository.AddressRepository;
 import com.notbooking.userms.repository.UserRepository;
 import com.notbooking.userms.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -41,8 +39,12 @@ public class UserService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    public String findEmailByUsername(String username) {
-        return userRepository.findEmailByUsernameAndNotDeleted(username);
+    public User findUserByEmail(String email) {
+        Optional<User> user = userRepository.findByEmailAndNotDeleted(email);
+        if (!user.isPresent()) {
+            throw new NotFoundException("User with email " + email + " not found!");
+        }
+        return user.get();
     }
 
     public Optional<UserRole> findRoleByUsername(String username){
@@ -71,54 +73,44 @@ public class UserService {
         }
     }
 
+
     public String changeNotification(String email) {
-        Optional<User> user = userRepository.findByEmailAndNotDeleted(email);
-        if (!user.isPresent()) {
-            throw new NotFoundException("User with email " + email + " not found!");
-        }
-        user.get().setNotificationsActive(!user.get().isNotificationsActive());
-        userRepository.saveAndFlush(user.get());
+        User user = findUserByEmail(email);
+        user.setNotificationsActive(!user.isNotificationsActive());
+        userRepository.saveAndFlush(user);
         return "Successfully changed notification settings!";
     }
 
     public String deleteAccount(String email) {
-        Optional<User> user = userRepository.findByEmailAndNotDeleted(email);
-        if (!user.isPresent()) {
-            throw new NotFoundException("User with email " + email + " not found!");
-        }
+        User user = findUserByEmail(email);
+
         //TODO if user has active reservations delete is forbidden/
         // if host is deleted all his accommodations must be deleted
-        user.get().setDeleted(true);
-        userRepository.saveAndFlush(user.get());
+        user.setDeleted(true);
+        userRepository.saveAndFlush(user);
         return "Successfully deleted account!";
     }
 
     public NewUserDTO getUserInfo(String email){
-        Optional<User> user = userRepository.findByEmailAndNotDeleted(email);
-        if (!user.isPresent()) {
-            throw new NotFoundException("User with email " + email + " not found!");
-        }
-        return new NewUserDTO(user.get());
+        User user = findUserByEmail(email);
+        return new NewUserDTO(user);
     }
 
     public NewUserDTO editUser(NewUserDTO userInfo, String email) {
-        Optional<User> user = userRepository.findByEmailAndNotDeleted(email);
-        if (!user.isPresent()) {
-            throw new NotFoundException("User with email " + email + " not found!");
-        }
+        User user = findUserByEmail(email);
         if(!userInfo.getEmail().equalsIgnoreCase(email) &&
                 userRepository.findByEmailAndNotDeleted(userInfo.getEmail()).isPresent()) {
             throw new EmailExistsException("Email already exists!");
         }
-        if(!userInfo.getUsername().equalsIgnoreCase(user.get().getUsername()) &&
+        if(!userInfo.getUsername().equalsIgnoreCase(user.getUsername()) &&
                 userRepository.findByUsernameAndNotDeleted(userInfo.getUsername()).isPresent()) {
             throw new EmailExistsException("Username already exists!");
         }
-        user.get().setName(userInfo.getName());
-        user.get().setSurname(userInfo.getSurname());
-        user.get().setUsername(userInfo.getUsername());
-        user.get().setEmail(userInfo.getEmail());
-        Optional<Address> address = addressRepository.findById(user.get().getAddress().getId());
+        user.setName(userInfo.getName());
+        user.setSurname(userInfo.getSurname());
+        user.setUsername(userInfo.getUsername());
+        user.setEmail(userInfo.getEmail());
+        Optional<Address> address = addressRepository.findById(user.getAddress().getId());
         if (!address.isPresent()) {
             throw new NotFoundException("Address not found" );
         }
@@ -126,36 +118,34 @@ public class UserService {
         address.get().setCountry(userInfo.getCountry());
         address.get().setStreet(userInfo.getStreet());
         address.get().setStreetNum(userInfo.getStreetNum());
-        user.get().setAddress(address.get());
+        user.setAddress(address.get());
 
         addressRepository.saveAndFlush(address.get());
-        userRepository.saveAndFlush(user.get());
+        userRepository.saveAndFlush(user);
         return userInfo;
     }
 
     public String changePassword(ChangePassDTO changePassDTO) {
-        Optional<User> user = userRepository.findByEmailAndNotDeleted(changePassDTO.getEmail());
-        if (!user.isPresent()) {
-            throw new NotFoundException("User with email " + changePassDTO.getEmail() + " not found!");
-        }
+        User user = findUserByEmail(changePassDTO.getEmail());
         SecurityContextHolder.clearContext();
         Authentication authentication;
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    user.get().getUsername(), changePassDTO.getOldPass()));
+                    user.getUsername(), changePassDTO.getOldPass()));
         } catch (BadCredentialsException e) {
             throw new BadRequestException("Incorrect old password.");
         }
         SecurityContextHolder.clearContext();
         try {
-            user.get().setPassword(passwordEncoder.encode(changePassDTO.getNewPass()));
-            userRepository.save(user.get());
+            user.setPassword(passwordEncoder.encode(changePassDTO.getNewPass()));
+            userRepository.save(user);
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    user.get().getUsername(), changePassDTO.getNewPass()));
+                    user.getUsername(), changePassDTO.getNewPass()));
         } catch (BadCredentialsException e) {
             throw new BadRequestException("Credentials are incorrect. Please, try again");
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return "Successfully changed password!";
     }
+
 }
