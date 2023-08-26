@@ -51,7 +51,7 @@ public class UserService {
         return userRoleRepository.findByUsername(username);
     }
 
-    public void addUser(NewUserDTO newUserDTO) {
+    public String addUser(NewUserDTO newUserDTO) {
         if (userRepository.findByEmailAndNotDeleted(newUserDTO.getEmail()).isPresent()) {
             throw new EmailExistsException("Email already exists!");
         } else if (userRepository.findByUsernameAndNotDeleted(newUserDTO.getUsername()).isPresent()) {
@@ -71,6 +71,7 @@ public class UserService {
             addressRepository.saveAndFlush(newGuest.getAddress());
             userRepository.saveAndFlush(newGuest);
         }
+        return newUserDTO.getUsername();
     }
 
 
