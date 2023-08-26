@@ -32,4 +32,6 @@ public class NewUserDTO {
         this.street = user.getAddress().getStreet();
         this.streetNum = user.getAddress().getStreetNum();
     }
+
+
 }
