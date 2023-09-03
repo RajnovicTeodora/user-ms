@@ -38,10 +38,10 @@ public class Rating {
     @JoinColumn(name = "host_id", nullable = true)
     private Host host;
 
-    @Column(name = "accommodation_id", scale = 0)
-    private int accommodation;
+    @Column(name = "accommodation_id", nullable = false)
+    private String accommodation;
 
-    public Rating(LocalDate date, int score, Guest guest, int accommodation){
+    public Rating(LocalDate date, int score, Guest guest, String accommodation){
         this.date = date;
         this.score = score;
         this.guest = guest;

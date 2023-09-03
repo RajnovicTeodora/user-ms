@@ -8,10 +8,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RatingDTO {
-    private String guestEmail;
+    private String guestUsername;
     private boolean hostRating;
-    private String hostEmail;
-    private int accommodation;
+    private String hostUsername;
+    private String accommodation;
     private int score;
     private boolean editExistingRating;
 

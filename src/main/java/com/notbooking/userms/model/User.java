@@ -51,9 +51,6 @@ public abstract class User implements UserDetails{
     @Column(name = "surname")
     private String surname;
 
-    @Column(name = "notificationsActive", nullable = false)
-    private boolean notificationsActive;
-
     @ManyToOne
     @JoinColumn(name = "address_id")
     private Address address;
@@ -68,7 +65,6 @@ public abstract class User implements UserDetails{
         this.username = newUserDTO.getUsername();
         this.email = newUserDTO.getEmail();
         this.isDeleted = false;
-        this.notificationsActive = true;
         this.address = new Address(newUserDTO.getCountry(), newUserDTO.getCity(), newUserDTO.getStreet(), newUserDTO.getStreetNum());
     }
 

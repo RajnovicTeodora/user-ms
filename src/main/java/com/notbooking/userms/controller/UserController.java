@@ -70,6 +70,7 @@ public class UserController {
             token.setUserType(this.userDetailsService.findRoleByUsername(userDetails.getUsername()));
             token.setEmail(login.getEmail());
             token.setFullName(this.userDetailsService.findFullNameByUsername(userDetails.getUsername()));
+            token.setId(this.userDetailsService.findIdByUsername(userDetails.getUsername()));
 
             Authentication authentication;
             try {
@@ -116,12 +117,14 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyRole('HOST', 'GUEST')")
-    @GetMapping(value = "/changeNotification/{email}", produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<?> changeNotification(@PathVariable String email) {
+    @GetMapping(value = "/changeNotification/{email}/{type}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> changeNotification(@PathVariable String email, @PathVariable int type ) {
         try {
-            return new ResponseEntity<>(userService.changeNotification(email), HttpStatus.OK);
+            return new ResponseEntity<>(userService.changeNotification(email, type), HttpStatus.OK);
         }catch (NotFoundException e){
             return new ResponseEntity<>("User with email "+ email + " not found!", HttpStatus.NOT_FOUND);
+        }catch (BadRequestException e) {
+            return new ResponseEntity<>("Entered notification type does not exist", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -168,6 +171,16 @@ public class UserController {
             return new ResponseEntity<>("User with email "+ changePassDTO.getEmail() + " not found!", HttpStatus.NOT_FOUND);
         }catch (BadRequestException e) {
             return new ResponseEntity<>("Incorrect password.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('HOST', 'GUEST')")
+    @GetMapping(value = "/checkNotification/{username}", produces = MediaType.APPLICATION_JSON_VALUE )
+    public ResponseEntity<?> checkNotificationActive(@PathVariable String username) {
+        try {
+            return new ResponseEntity<>(userService.checkNotification(username), HttpStatus.OK);
+        }catch (NotFoundException e){
+            return new ResponseEntity<>("User not found!", HttpStatus.NOT_FOUND);
         }
     }
 
