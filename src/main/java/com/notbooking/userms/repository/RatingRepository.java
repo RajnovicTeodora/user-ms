@@ -16,15 +16,15 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
 
     @Query("select r from Rating r where r.isDeleted = false and " +
             "r.isHostRating = false and r.accommodation = :accommodation and r.guest.id = :guest ")
-    Optional<Rating> findByGuestAndAccommodation(@Param("guest") Long guest,@Param("accommodation") int accommodation);
+    Optional<Rating> findByGuestAndAccommodation(@Param("guest") Long guest,@Param("accommodation") String accommodation);
 
     @Query("select r from Rating r where r.isDeleted = true and " +
             "r.isHostRating = false and r.accommodation = :accommodation and r.guest.id = :guest ")
-    Optional<Rating> findByGuestAndAccommodationDeleted(@Param("guest") Long guest,@Param("accommodation") int accommodation);
+    Optional<Rating> findByGuestAndAccommodationDeleted(@Param("guest") Long guest,@Param("accommodation") String accommodation);
 
     @Query("select r from Rating r where r.isDeleted = false and " +
             "r.isHostRating = false and r.accommodation = :accommodation ")
-    List<Rating> findByAccommodation( @Param("accommodation") int accommodation);
+    List<Rating> findByAccommodation( @Param("accommodation") String accommodation);
 
     //HOST RATINGS
 

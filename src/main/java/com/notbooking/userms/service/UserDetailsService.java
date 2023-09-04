@@ -50,4 +50,9 @@ public class UserDetailsService implements org.springframework.security.core.use
         return user.getName()+" "+user.getSurname();
     }
 
+    public int findIdByUsername(String username){
+        User user = this.userRepository.findByUsernameAndNotDeleted(username)
+                .orElseThrow(() -> new NotFoundException(String.format("User with username '%s' is not found!", username)));
+        return user.getId().intValue();
+    }
 }

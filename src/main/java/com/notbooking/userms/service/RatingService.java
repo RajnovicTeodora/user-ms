@@ -23,16 +23,16 @@ public class RatingService {
     @Autowired
     private UserService userService;
 
-    public List<Rating> findAllAccommodationRatings(int accommodation) {
+    public List<Rating> findAllAccommodationRatings(String accommodation) {
         return ratingRepository.findByAccommodation(accommodation);
     }
 
-    public List<Rating> findAllHostRatings(String email) {
-        User host = userService.findUserByEmail(email);
+    public List<Rating> findAllHostRatings(String username) {
+        User host = userService.findUserByUsername(username);
         return ratingRepository.findByHost(host.getId());
     }
 
-    public double getAvgAccommodationScore(int accommodation){
+    public double getAvgAccommodationScore(String accommodation){
         List<Rating> rl = findAllAccommodationRatings(accommodation);
         if(rl.isEmpty()){
             return 0;
@@ -42,8 +42,8 @@ public class RatingService {
         }
     }
 
-    public double getAvgHostScore(String email){
-        List<Rating> rl = findAllHostRatings(email);
+    public double getAvgHostScore(String username){
+        List<Rating> rl = findAllHostRatings(username);
         if(rl.isEmpty()){
             return 0;
         }else{
@@ -52,7 +52,7 @@ public class RatingService {
         }
     }
 
-    public List<TableCellDTO> getAllAccommodationScores(int accommodation){
+    public List<TableCellDTO> getAllAccommodationScores(String accommodation){
         List<Rating> rl = findAllAccommodationRatings(accommodation);
         if(rl.isEmpty()){
             throw new NotFoundException("Accommodation has no ratings");
@@ -65,8 +65,8 @@ public class RatingService {
         }
     }
 
-    public List<TableCellDTO> getAllHostScores(String email){
-        List<Rating> rl = findAllHostRatings(email);
+    public List<TableCellDTO> getAllHostScores(String hostUsername){
+        List<Rating> rl = findAllHostRatings(hostUsername);
         if(rl.isEmpty()){
             throw new NotFoundException("Host has no ratings");
         }else{
@@ -78,19 +78,19 @@ public class RatingService {
         }
     }
 
-    public int getExistingAccommodationScore(String email, int accommodation){
+    public int getExistingAccommodationScore(String username, String accommodation){
         Optional<Rating> r = ratingRepository.findByGuestAndAccommodation(
-                userService.findUserByEmail(email).getId(), accommodation);
+                userService.findUserByUsername(username).getId(), accommodation);
         if(r.isPresent()){
             return r.get().getScore();
         }
         return 0;
     }
 
-    public int getExistingHostScore(String guestmail, String hostmail){
+    public int getExistingHostScore(String guestUsername, String hostUsername){
         Optional<Rating> r = ratingRepository.findByGuestAndHost(
-                userService.findUserByEmail(guestmail).getId(),
-                userService.findUserByEmail(hostmail).getId());
+                userService.findUserByUsername(guestUsername).getId(),
+                userService.findUserByUsername(hostUsername).getId());
         if(r.isPresent()){
             return r.get().getScore();
         }
@@ -98,7 +98,7 @@ public class RatingService {
     }
 
     public int saveRating(RatingDTO ratingDTO){
-        User guest = userService.findUserByEmail(ratingDTO.getGuestEmail());
+        User guest = userService.findUserByUsername(ratingDTO.getGuestUsername());
         //EDIT EXISTING RATING
         if(ratingDTO.isEditExistingRating()){
             Optional<Rating> r;
@@ -107,7 +107,7 @@ public class RatingService {
                         guest.getId(), ratingDTO.getAccommodation());
 
             }else{
-                User host = userService.findUserByEmail(ratingDTO.getHostEmail());
+                User host = userService.findUserByUsername(ratingDTO.getHostUsername());
                 r = ratingRepository.findByGuestAndHost(
                         guest.getId(), host.getId());
             }
@@ -135,7 +135,7 @@ public class RatingService {
                     ratingRepository.save(nr);
                 }
             }else{
-                User host = userService.findUserByEmail(ratingDTO.getHostEmail());
+                User host = userService.findUserByUsername(ratingDTO.getHostUsername());
                 r = ratingRepository.findByGuestAndHostDeleted(
                         guest.getId(), host.getId());
                 if(r.isPresent()){
@@ -155,11 +155,11 @@ public class RatingService {
 
     public int deleteRating(RatingDTO ratingDTO){
         Optional<Rating> r;
-        User guest = userService.findUserByEmail(ratingDTO.getGuestEmail());
+        User guest = userService.findUserByUsername(ratingDTO.getGuestUsername());
         if(ratingDTO.isHostRating()) {
             r = ratingRepository.findByGuestAndHost(
                     guest.getId(),
-                    userService.findUserByEmail(ratingDTO.getHostEmail()).getId());
+                    userService.findUserByUsername(ratingDTO.getHostUsername()).getId());
         }else{
             r = ratingRepository.findByGuestAndAccommodation(
                     guest.getId(),

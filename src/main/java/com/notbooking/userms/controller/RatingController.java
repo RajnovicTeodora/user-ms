@@ -19,7 +19,7 @@ public class RatingController {
     private RatingService ratingService;
 
     @GetMapping(value = "/getAvgAccommodationScore/{accommodation}")
-    public ResponseEntity<?> getAvgAccommodationScore(@PathVariable int accommodation) {
+    public ResponseEntity<?> getAvgAccommodationScore(@PathVariable String accommodation) {
         try {
             return new ResponseEntity<>(ratingService.getAvgAccommodationScore(accommodation), HttpStatus.OK);
         }catch (NotFoundException e){
@@ -27,17 +27,17 @@ public class RatingController {
         }
     }
 
-    @GetMapping(value = "/getAvgHostScore/{email}")
-    public ResponseEntity<?> getAvgHostScore(@PathVariable String email) {
+    @GetMapping(value = "/getAvgHostScore/{username}")
+    public ResponseEntity<?> getAvgHostScore(@PathVariable String username) {
         try {
-            return new ResponseEntity<>(ratingService.getAvgHostScore(email), HttpStatus.OK);
+            return new ResponseEntity<>(ratingService.getAvgHostScore(username), HttpStatus.OK);
         }catch (NotFoundException e){
             return new ResponseEntity<>("Host not found", HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping(value = "/getAllAccommodationScores/{accommodation}")
-    public ResponseEntity<?> getAllAccommodationScores(@PathVariable int accommodation) {
+    public ResponseEntity<?> getAllAccommodationScores(@PathVariable String accommodation) {
         try {
             return new ResponseEntity<>(ratingService.getAllAccommodationScores(accommodation), HttpStatus.OK);
         }catch (NotFoundException e){
@@ -45,32 +45,32 @@ public class RatingController {
         }
     }
 
-    @GetMapping(value = "/getAllHostScores/{hostmail}")
-    public ResponseEntity<?> getAllHostScores(@PathVariable String hostmail) {
+    @GetMapping(value = "/getAllHostScores/{hostUsername}")
+    public ResponseEntity<?> getAllHostScores(@PathVariable String hostUsername) {
         try {
-            return new ResponseEntity<>(ratingService.getAllHostScores(hostmail), HttpStatus.OK);
+            return new ResponseEntity<>(ratingService.getAllHostScores(hostUsername), HttpStatus.OK);
         }catch (NotFoundException e){
             return new ResponseEntity<>("Host has no ratings", HttpStatus.NOT_FOUND);
         }
     }
 
     @PreAuthorize("hasAnyRole('GUEST')")
-    @GetMapping(value = "/getExistingAccommodationScore/{email}/{accommodation}")
-    public ResponseEntity<?> getExistingAccommodationScore(@PathVariable String email, @PathVariable int accommodation) {
+    @GetMapping(value = "/getExistingAccommodationScore/{username}/{accommodation}")
+    public ResponseEntity<?> getExistingAccommodationScore(@PathVariable String username, @PathVariable String accommodation) {
         try {
-            return new ResponseEntity<>(ratingService.getExistingAccommodationScore(email, accommodation), HttpStatus.OK);
+            return new ResponseEntity<>(ratingService.getExistingAccommodationScore(username, accommodation), HttpStatus.OK);
         }catch (NotFoundException e){
-            return new ResponseEntity<>("User with email "+ email + " not found!", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("User with username "+ username + " not found!", HttpStatus.NOT_FOUND);
         }
     }
 
     @PreAuthorize("hasAnyRole('GUEST')")
-    @GetMapping(value = "/getExistingHostScore/{guestmail}/{hostmail}")
-    public ResponseEntity<?> getExistingHostScore(@PathVariable String guestmail, @PathVariable String hostmail) {
+    @GetMapping(value = "/getExistingHostScore/{guestUsername}/{hostUsername}")
+    public ResponseEntity<?> getExistingHostScore(@PathVariable String guestUsername, @PathVariable String hostUsername) {
         try {
-            return new ResponseEntity<>(ratingService.getExistingHostScore(guestmail, hostmail), HttpStatus.OK);
+            return new ResponseEntity<>(ratingService.getExistingHostScore(guestUsername, hostUsername), HttpStatus.OK);
         }catch (NotFoundException e){
-            return new ResponseEntity<>("User with email "+ guestmail + " not found!", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("User with username "+ guestUsername + " not found!", HttpStatus.NOT_FOUND);
         }
     }
 

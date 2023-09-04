@@ -15,6 +15,7 @@ public class TokenDTO {
     private String userType;
     private String email;
     private String fullName;
+    private int id;
 
     public TokenDTO(String token, String username, Long expiresIn, String userType) {
         this.setAccessToken(token);

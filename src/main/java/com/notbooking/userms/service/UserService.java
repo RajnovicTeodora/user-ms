@@ -2,6 +2,7 @@ package com.notbooking.userms.service;
 
 import com.notbooking.userms.dto.ChangePassDTO;
 import com.notbooking.userms.dto.NewUserDTO;
+import com.notbooking.userms.dto.NotificationDTO;
 import com.notbooking.userms.exception.BadRequestException;
 import com.notbooking.userms.exception.EmailExistsException;
 import com.notbooking.userms.exception.NotFoundException;
@@ -47,6 +48,14 @@ public class UserService {
         return user.get();
     }
 
+    public User findUserByUsername(String username) {
+        Optional<User> user = userRepository.findByUsernameAndNotDeleted(username);
+        if (!user.isPresent()) {
+            throw new NotFoundException("User with username " + username + " not found!");
+        }
+        return user.get();
+    }
+
     public Optional<UserRole> findRoleByUsername(String username){
         return userRoleRepository.findByUsername(username);
     }
@@ -60,12 +69,17 @@ public class UserService {
 
         if (newUserDTO.getUserRole().equals("HOST")) {
             Host newHost = new Host(newUserDTO);
+            newHost.setNotificationType1Active(true);
+            newHost.setNotificationType2Active(true);
+            newHost.setNotificationType3Active(true);
+            newHost.setNotificationType4Active(true);
             newHost.setRole(userRoleRepository.findByName("HOST").get());
             newHost.setPassword(passwordEncoder.encode(newUserDTO.getPassword()));
             addressRepository.saveAndFlush(newHost.getAddress());
             userRepository.saveAndFlush(newHost);
         }else{
             Guest newGuest = new Guest(newUserDTO);
+            newGuest.setNotificationType5Active(true);
             newGuest.setRole(userRoleRepository.findByName("GUEST").get());
             newGuest.setPassword(passwordEncoder.encode(newUserDTO.getPassword()));
             addressRepository.saveAndFlush(newGuest.getAddress());
@@ -75,18 +89,33 @@ public class UserService {
     }
 
 
-    public String changeNotification(String email) {
+    public String changeNotification(String email, int type) {
         User user = findUserByEmail(email);
-        user.setNotificationsActive(!user.isNotificationsActive());
+        switch(type) {
+            case 1:
+                ((Host)user).setNotificationType1Active(!((Host)user).isNotificationType1Active());
+                break;
+            case 2:
+                ((Host)user).setNotificationType2Active(!((Host)user).isNotificationType2Active());
+                break;
+            case 3:
+                ((Host)user).setNotificationType3Active(!((Host)user).isNotificationType3Active());
+                break;
+            case 4:
+                ((Host)user).setNotificationType4Active(!((Host)user).isNotificationType4Active());
+                break;
+            case 5:
+                ((Guest)user).setNotificationType5Active(!((Guest)user).isNotificationType5Active());
+                break;
+            default: // type error
+                throw new BadRequestException("Entered notification type does not exist");
+        }
         userRepository.saveAndFlush(user);
         return "Successfully changed notification settings!";
     }
 
     public String deleteAccount(String email) {
         User user = findUserByEmail(email);
-
-        //TODO if user has active reservations delete is forbidden/
-        // if host is deleted all his accommodations must be deleted
         user.setDeleted(true);
         userRepository.saveAndFlush(user);
         return "Successfully deleted account!";
@@ -149,4 +178,21 @@ public class UserService {
         return "Successfully changed password!";
     }
 
+    public NotificationDTO checkNotification(String username){
+        Optional<User> user = userRepository.findByUsernameAndNotDeleted(username);
+        if (!user.isPresent()) {
+            throw new NotFoundException("User not found!");
+        }
+        NotificationDTO dto = new NotificationDTO();
+        dto.setUserId(user.get().getId());
+        if(user.get().getRole().getName().equals("HOST")){
+            dto.setType1(((Host)user.get()).isNotificationType1Active());
+            dto.setType2(((Host)user.get()).isNotificationType2Active());
+            dto.setType3(((Host)user.get()).isNotificationType3Active());
+            dto.setType4(((Host)user.get()).isNotificationType4Active());
+        }else{
+            dto.setType5(((Guest)user.get()).isNotificationType5Active());
+        }
+        return dto;
+    }
 }
