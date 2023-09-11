@@ -38,13 +38,10 @@ insert into host (id, notificationType1Active, notificationType2Active, notifica
 values (4, false, true, true, false);
 
 insert into rating (date, score, is_deleted, guest_id, is_host_rating, accommodation_id)
-values ('2023-10-10', 4, false, 2, false, '1');
+values ('2023-10-10', 4, false, 2, false, '648ebee63073a2143b4f95bf');
 
 insert into rating (date, score, is_deleted, guest_id, is_host_rating, accommodation_id)
-values ('2023-09-09', 3, false, 3, false, '1');
-
-insert into rating (date, score, is_deleted, guest_id, is_host_rating, accommodation_id)
-values ('2023-12-12', 5, false, 2, false, '2');
+values ('2023-09-09', 3, false, 3, false, '648ebee63073a2143b4f95bf');
 
 insert into rating (date, score, is_deleted, guest_id, is_host_rating, host_id, accommodation_id)
 values ('2023-12-15', 5, false, 2, true, 1, '-1');
