@@ -33,13 +33,13 @@ public abstract class User implements UserDetails{
     @Column(name = "id", unique = true, nullable = false)
     private Long id;
 
-    @Column(name = "username", unique = true, nullable = false)
+    @Column(name = "username", nullable = false)
     private String username;
 
-    @Column(name = "password", unique = false, nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "isDeleted", nullable = false)
